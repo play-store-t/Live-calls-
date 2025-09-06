@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Live Models</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f1f8;
+  --card:#ffffff;
+  --text:#23262f;
+  --muted:#6b7280;
+  --green:#16a34a;
+  --red:#ef4444;
+  --shadow:0 10px 25px rgba(0,0,0,.08);
+}
+body{margin:0;font-family:Inter,sans-serif;background:var(--bg);display:flex;justify-content:center;}
+.phone{width:min(420px,100%);}
+.header{background:#6a26ff;color:white;padding:28px 18px 64px;border-bottom-left-radius:24px;border-bottom-right-radius:24px;position:relative;}
+.title{display:flex;justify-content:center;gap:10px;font-weight:800;font-size:20px}
+.subtitle{text-align:center;margin-top:6px;font-weight:500;opacity:.9}
+.stats{position:absolute;left:14px;right:14px;bottom:-36px;background:white;color:var(--text);border-radius:20px;display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden;}
+.stat{padding:14px 8px;text-align:center}
+.stat:not(:last-child){border-right:1px solid #f1f5f9}
+.stat .num{font-weight:800;font-size:22px}
+.stat .label{font-size:12px;color:var(--muted)}
+.content{padding:64px 14px 24px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;cursor:pointer}
+.media{position:relative;height:220px;background:#eee}
+.media img{width:100%;height:100%;object-fit:cover;display:block}
+.age-pill{position:absolute;left:10px;bottom:10px;background:#111827;color:white;border-radius:999px;padding:6px 10px;font-weight:700;font-size:13px;}
+.status-dot{position:absolute;left:10px;top:10px;width:12px;height:12px;border-radius:50%;}
+.dot-green{background:var(--green)}
+.dot-red{background:var(--red)}
+.body{padding:14px}
+.name{font-weight:800;font-size:18px}
+.tag{font-size:13px;color:var(--muted);margin-top:2px}
+.btn{margin-top:10px;padding:12px 10px;width:100%;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:14px}
+.btn-green{background:rgba(22,163,74,.12);color:var(--green)}
+.btn-red{background:rgba(239,68,68,.12);color:var(--red)}
+</style>
+</head>
+<body>
+<main class="phone">
+  <header class="header">
+    <div class="title">🔥 LIVE MODELS 🔥</div>
+    <div class="subtitle">Available Now Near You</div>
+    <section class="stats">
+      <div class="stat"><div class="num" id="total">0</div><div class="label">Total</div></div>
+      <div class="stat"><div class="num" id="avail" style="color:var(--green)">0</div><div class="label">Available</div></div>
+      <div class="stat"><div class="num" id="busy" style="color:var(--red)">0</div><div class="label">Busy</div></div>
+    </section>
+  </header>
+
+  <section class="content">
+    <div class="grid" id="profiles"></div>
+  </section>
+</main>
+
+<script>
+const girls = ["Priya","Neha","Anjali","Sakshi","Riya","Shreya","Sneha","Aditi","Divya","Komal","Simran","Tanya","Nisha","Kavya","Pooja","Meera","Ishita","Sonali","Alisha","Muskaan"];
+const ages = [21,22,23,24,25,22,23,24,26,22,25,23,24,22,25,26,21,23,22,24];
+const totalImages = 50;
+const whatsappNumber = "919863569814";
+
+let availableCount = 0, busyCount = 0, totalCount = 0;
+const profilesDiv = document.getElementById("profiles");
+
+function getRandomImage(){
+  let idx = Math.floor(Math.random()*totalImages) + 1;
+  return `images/img${idx}.jpg`;
+}
+
+function createRandomProfile(){
+  let idx = Math.floor(Math.random()*girls.length);
+  let name = girls[idx];
+  let age = ages[idx];
+  let isAvailable = Math.random() < 0.7;
+  isAvailable ? availableCount++ : busyCount++;
+  totalCount++;
+
+  let statusText = isAvailable ? "✅ Available" : "⏱ Busy";
+  let statusClass = isAvailable ? "green" : "red";
+  let imgSrc = getRandomImage();
+
+  let card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="media">
+      <img src="${imgSrc}" alt="${name}">
+      <span class="age-pill">${age} yrs</span>
+      <span class="status-dot dot-${statusClass}"></span>
+    </div>
+    <div class="body">
+      <div class="name">${name}</div>
+      <div class="tag">${statusText}</div>
+      <button class="btn btn-green chat-btn">💬 Chat Now</button>
+      <button class="btn btn-red call-btn">📞  Call Now </button>
+    </div>
+  `;
+
+  // Card click → profile.html
+  card.addEventListener("click", ()=>{
+    localStorage.setItem("selectedProfile", JSON.stringify({
+      name: name,
+      age: age,
+      status: statusText,
+      img: imgSrc
+    }));
+    window.location.href = "profile.html";
+  });
+
+  // Chat button → WhatsApp
+  card.querySelector('.chat-btn').addEventListener('click', e=>{
+    e.stopPropagation();
+    window.open(`https://wa.me/${whatsappNumber}`, "_blank");
+  });
+
+  // Call button → WhatsApp
+  card.querySelector('.call-btn').addEventListener('click', e=>{
+    e.stopPropagation();
+    window.open(`https://wa.me/${whatsappNumber}`, "_blank");
+  });
+
+  profilesDiv.appendChild(card);
+  document.getElementById("total").innerText = totalCount;
+  document.getElementById("avail").innerText = availableCount;
+  document.getElementById("busy").innerText = busyCount;
+}
+
+// Initial load
+for(let i=0;i<20;i++) createRandomProfile();
+
+// Infinite scroll
+window.addEventListener("scroll", ()=>{
+  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
+    for(let i=0;i<10;i++) createRandomProfile();
+  }
+});
+</script>
+</body>
+</html>
